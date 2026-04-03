@@ -2,12 +2,22 @@ using UnityEngine;
 
 public class LocalInfluenceSystem : MonoBehaviour
 {
+    public enum InfluenceType
+    {
+        None,
+        MicroCompress,
+        StabilizeTurbulence,
+        SeedStarFormation
+    }
+
     [SerializeField] private Transform probe;
     [SerializeField] private float pulseRadius = 30f;
     [SerializeField] private float pulseDuration = 8f;
 
     private float pulseUntilTime;
     private Vector3 pulseCenter;
+    private InfluenceType activeType;
+    public InfluenceType ActiveType => activeType;
 
     private void Update()
     {
@@ -18,12 +28,23 @@ public class LocalInfluenceSystem : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            TriggerPulse();
+            TriggerPulse(InfluenceType.MicroCompress);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            TriggerPulse(InfluenceType.StabilizeTurbulence);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            TriggerPulse(InfluenceType.SeedStarFormation);
         }
     }
 
-    public void TriggerPulse()
+    public void TriggerPulse(InfluenceType type = InfluenceType.MicroCompress)
     {
+        activeType = type;
         pulseCenter = probe.position + probe.forward * 15f;
         pulseUntilTime = SimulationManager.Instance.SimulationTime + pulseDuration;
     }
@@ -32,6 +53,7 @@ public class LocalInfluenceSystem : MonoBehaviour
     {
         if (SimulationManager.Instance == null || SimulationManager.Instance.SimulationTime > pulseUntilTime)
         {
+            activeType = InfluenceType.None;
             return 0f;
         }
 
@@ -42,5 +64,20 @@ public class LocalInfluenceSystem : MonoBehaviour
         }
 
         return 1f - dist / pulseRadius;
+    }
+
+    public float TimeRemaining()
+    {
+        if (SimulationManager.Instance == null)
+        {
+            return 0f;
+        }
+
+        return Mathf.Max(0f, pulseUntilTime - SimulationManager.Instance.SimulationTime);
+    }
+
+    public void SetProbe(Transform probeTransform)
+    {
+        probe = probeTransform;
     }
 }

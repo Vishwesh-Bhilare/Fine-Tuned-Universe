@@ -12,6 +12,7 @@ public class ProbeController : MonoBehaviour
 
     private Rigidbody rb;
     private ProbeMovementMode mode = ProbeMovementMode.Drift;
+    public ProbeMovementMode Mode => mode;
 
     private void Awake()
     {

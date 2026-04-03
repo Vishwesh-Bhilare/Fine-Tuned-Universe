@@ -8,10 +8,25 @@ public class SignalSystem : MonoBehaviour
     [SerializeField] private float tuneFrequency;
 
     private readonly List<Vector3> deterministicSignals = new List<Vector3>();
+    private int lastTimeSlice = int.MinValue;
 
     private void Start()
     {
         BuildSignalField();
+    }
+
+    private void Update()
+    {
+        if (SimulationManager.Instance == null)
+        {
+            return;
+        }
+
+        int timeSlice = Mathf.FloorToInt(SimulationManager.Instance.SimulationTime * 2f);
+        if (timeSlice != lastTimeSlice)
+        {
+            BuildSignalField();
+        }
     }
 
     private void BuildSignalField()
@@ -20,6 +35,7 @@ public class SignalSystem : MonoBehaviour
 
         int seed = SimulationManager.Instance.SeedManager.SeedValue;
         int timeSlice = Mathf.FloorToInt(SimulationManager.Instance.SimulationTime * 2f);
+        lastTimeSlice = timeSlice;
 
         for (int i = 0; i < 96; i++)
         {
@@ -78,5 +94,10 @@ public class SignalSystem : MonoBehaviour
     public void SetTuneFrequency(float normalizedFrequency)
     {
         tuneFrequency = Mathf.Clamp01(normalizedFrequency);
+    }
+
+    public void SetProbe(Transform probeTransform)
+    {
+        probe = probeTransform;
     }
 }
