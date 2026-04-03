@@ -49,7 +49,7 @@ public class UniverseGameController : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (GameInput.GetKeyDown(KeyCode.P))
         {
             SetProbeMode(!probeActive);
         }
@@ -57,8 +57,8 @@ public class UniverseGameController : MonoBehaviour
         if (probeActive && signalSystem != null)
         {
             float input = 0f;
-            if (Input.GetKey(KeyCode.Q)) input -= 0.35f;
-            if (Input.GetKey(KeyCode.E)) input += 0.35f;
+            if (GameInput.GetKey(KeyCode.Q)) input -= 0.35f;
+            if (GameInput.GetKey(KeyCode.E)) input += 0.35f;
 
             if (Mathf.Abs(input) > 0f)
             {

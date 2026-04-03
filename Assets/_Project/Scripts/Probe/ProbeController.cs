@@ -33,7 +33,7 @@ public class ProbeController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (GameInput.GetKeyDown(KeyCode.Tab))
         {
             mode = (ProbeMovementMode)(((int)mode + 1) % 3);
         }
@@ -45,8 +45,8 @@ public class ProbeController : MonoBehaviour
         float entropyNoise = (DeterministicNoise.Sample3D(transform.position.x, transform.position.y, transform.position.z, SimulationManager.Instance.SeedManager.SeedValue) - 0.5f)
                              * local.entropy * 0.6f;
 
-        float thrustInput = Input.GetAxis("Vertical");
-        float strafeInput = Input.GetAxis("Horizontal");
+        float thrustInput = GameInput.GetAxis("Vertical");
+        float strafeInput = GameInput.GetAxis("Horizontal");
 
         Vector3 inputForce = (transform.forward * thrustInput) + (transform.right * strafeInput * 0.7f);
         inputForce *= thrustPower * Mathf.Lerp(1f, 0.45f, local.gravityPotential);
@@ -54,7 +54,7 @@ public class ProbeController : MonoBehaviour
 
         rb.AddForce(inputForce, ForceMode.Acceleration);
 
-        Vector3 torque = new Vector3(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), -strafeInput * 0.25f) * steerTorque;
+        Vector3 torque = new Vector3(-GameInput.GetAxis("Mouse Y"), GameInput.GetAxis("Mouse X"), -strafeInput * 0.25f) * steerTorque;
         rb.AddTorque(torque, ForceMode.Acceleration);
 
         switch (mode)
