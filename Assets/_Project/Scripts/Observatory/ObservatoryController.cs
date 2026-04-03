@@ -24,7 +24,7 @@ public class ObservatoryController : MonoBehaviour
             return;
         }
 
-        float scroll = Input.mouseScrollDelta.y;
+        float scroll = GameInput.MouseScrollDelta().y;
         currentDistance = Mathf.Clamp(currentDistance - scroll * zoomSpeed * Time.deltaTime, minScaleDistance, maxScaleDistance);
 
         observatoryCamera.transform.position = new Vector3(0f, currentDistance * 0.4f, -currentDistance);

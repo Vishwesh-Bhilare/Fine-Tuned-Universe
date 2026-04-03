@@ -25,11 +25,11 @@ public class ProbeCamera : MonoBehaviour
     {
         if (target == null) return;
 
-        yaw += Input.GetAxis("Mouse X") * orbitSpeed * Time.deltaTime;
-        pitch -= Input.GetAxis("Mouse Y") * orbitSpeed * 0.6f * Time.deltaTime;
+        yaw += GameInput.GetAxis("Mouse X") * orbitSpeed * Time.deltaTime;
+        pitch -= GameInput.GetAxis("Mouse Y") * orbitSpeed * 0.6f * Time.deltaTime;
         pitch = Mathf.Clamp(pitch, -15f, 65f);
 
-        distance = Mathf.Clamp(distance - Input.mouseScrollDelta.y * 0.7f, minDistance, maxDistance);
+        distance = Mathf.Clamp(distance - GameInput.MouseScrollDelta().y * 0.7f, minDistance, maxDistance);
 
         Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 offset = rot * new Vector3(0f, 1.8f, -distance);

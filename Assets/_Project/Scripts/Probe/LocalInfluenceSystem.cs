@@ -26,17 +26,17 @@ public class LocalInfluenceSystem : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (GameInput.GetKeyDown(KeyCode.Alpha1))
         {
             TriggerPulse(InfluenceType.MicroCompress);
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        if (GameInput.GetKeyDown(KeyCode.Alpha2))
         {
             TriggerPulse(InfluenceType.StabilizeTurbulence);
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        if (GameInput.GetKeyDown(KeyCode.Alpha3))
         {
             TriggerPulse(InfluenceType.SeedStarFormation);
         }

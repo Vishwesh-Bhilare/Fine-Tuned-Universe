@@ -10,7 +10,7 @@ public class ScanSystem : MonoBehaviour
 
     private void Update()
     {
-        if (!Input.GetKeyDown(KeyCode.Space) || probe == null)
+        if (!GameInput.GetKeyDown(KeyCode.Space) || probe == null)
         {
             return;
         }
