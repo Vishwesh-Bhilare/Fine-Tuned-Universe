@@ -1,26 +1,52 @@
+using System.Text;
 using UnityEngine;
 
 public class SeedManager : MonoBehaviour
 {
     [SerializeField] private string seed = "A1B2C3";
 
+    public string Seed => seed;
     public int SeedValue { get; private set; }
 
-    void Awake()
+    private void Awake()
     {
-        SeedValue = ConvertSeedToInt(seed);
-        Debug.Log("Seed Initialized: " + seed + " -> " + SeedValue);
+        seed = NormalizeSeed(seed);
+        SeedValue = DeterministicNoise.HashToInt(seed);
+        Debug.Log($"Seed Initialized: {seed} -> {SeedValue}");
     }
 
-    private int ConvertSeedToInt(string seed)
+    public void SetSeed(string value)
     {
-        int hash = 17;
+        seed = NormalizeSeed(value);
+        SeedValue = DeterministicNoise.HashToInt(seed);
+    }
 
-        foreach (char c in seed)
+    private static string NormalizeSeed(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
         {
-            hash = hash * 31 + c;
+            return "A1B2C3";
         }
 
-        return Mathf.Abs(hash);
+        StringBuilder filtered = new StringBuilder(6);
+        foreach (char c in input.ToUpperInvariant())
+        {
+            if (char.IsLetterOrDigit(c))
+            {
+                filtered.Append(c);
+            }
+
+            if (filtered.Length == 6)
+            {
+                break;
+            }
+        }
+
+        while (filtered.Length < 6)
+        {
+            filtered.Append('0');
+        }
+
+        return filtered.ToString();
     }
 }

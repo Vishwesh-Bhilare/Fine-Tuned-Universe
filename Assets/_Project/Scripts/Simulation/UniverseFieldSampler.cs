@@ -5,116 +5,83 @@ public class UniverseFieldSampler : MonoBehaviour
     private SeedManager seedManager;
     private ConstantsManager constantsManager;
 
-    void Awake()
+    private void Awake()
     {
         seedManager = GetComponent<SeedManager>();
         constantsManager = GetComponent<ConstantsManager>();
     }
 
-    public float GetDensity(Vector3 position)
+    public UniverseSample Sample(Vector3 position, float simulationTime)
     {
-        float time = SimulationManager.Instance.simulationTime;
+        int seed = seedManager.SeedValue;
+        UniverseConstants constants = constantsManager.Constants;
 
-        // --- strong directional drift (visible movement)
-        Vector3 drift = new Vector3(
-            time * 8f,
-            0,
-            time * 5f
-        );
+        float cosmicDrift = simulationTime * (0.02f + constants.darkEnergy * 0.01f);
+        Vector3 drifted = position + new Vector3(cosmicDrift * 43f, cosmicDrift * 9f, cosmicDrift * 31f);
 
-        // --- turbulence (adds organic motion)
-        float turbulence = DeterministicNoise.Sample3D(
-            position.x * 0.001f + time * 0.2f,
-            position.y * 0.001f,
-            position.z * 0.001f + time * 0.2f,
-            seedManager.SeedValue + 999
-        );
+        float web = Mathf.Pow(DeterministicNoise.Sample3D(drifted.x * 0.00015f, drifted.y * 0.00015f, drifted.z * 0.00015f, seed + 100), 2.3f);
+        float filament = DeterministicNoise.Sample3D(drifted.x * 0.0014f, drifted.y * 0.0014f, drifted.z * 0.0014f, seed + 330);
+        float cluster = Mathf.Pow(DeterministicNoise.Sample3D(drifted.x * 0.004f, drifted.y * 0.004f, drifted.z * 0.004f, seed + 777), 3.5f);
 
-        Vector3 warpedTime = drift + new Vector3(
-            turbulence * 20f,
-            0,
-            turbulence * 20f
-        );
+        float density = Mathf.Clamp01((web * 0.55f + filament * 0.3f + cluster * 0.15f) * constants.gravity / (0.65f + constants.darkEnergy * 0.2f));
 
-        Vector3 p = position + warpedTime;
+        float radiationCore = DeterministicNoise.Sample3D(position.x * 0.0025f, position.y * 0.0025f, position.z * 0.0025f, seed + 19);
+        float radiation = Mathf.Clamp01(radiationCore * constants.electromagnetism * (0.6f + density));
 
-        // --- spatial warp (break uniformity)
-        float warp = DeterministicNoise.Sample3D(
-            p.x * 0.0008f,
-            p.y * 0.0008f,
-            p.z * 0.0008f,
-            seedManager.SeedValue + 500
-        );
+        float entropyWave = DeterministicNoise.Sample3D(
+            position.x * 0.001f + simulationTime * 0.01f,
+            position.y * 0.001f + simulationTime * 0.008f,
+            position.z * 0.001f + simulationTime * 0.012f,
+            seed + 404);
+        float entropy = Mathf.Clamp01(entropyWave * constants.entropy);
 
-        Vector3 warped = p + new Vector3(warp * 50f, 0, warp * 50f);
+        float gravityPotential = Mathf.Clamp01(density * constants.gravity);
 
-        // --- multi-scale structure
-        float large = DeterministicNoise.Sample3D(
-            warped.x * 0.0003f,
-            warped.y * 0.0003f,
-            warped.z * 0.0003f,
-            seedManager.SeedValue
-        );
+        float chemistryBalance = 1f - Mathf.Abs(constants.strongForce - constants.electromagnetism) / 10f;
+        float thermalWindow = 1f - Mathf.Abs(radiation - 0.45f) * 1.8f;
+        float turbulencePenalty = 1f - entropy;
 
-        float medium = DeterministicNoise.Sample3D(
-            warped.x * 0.002f,
-            warped.y * 0.002f,
-            warped.z * 0.002f,
-            seedManager.SeedValue + 17
-        );
+        float lifeProbability = Mathf.Clamp01(
+            density * 0.35f +
+            Mathf.Clamp01(chemistryBalance) * 0.25f +
+            Mathf.Clamp01(thermalWindow) * 0.25f +
+            Mathf.Clamp01(turbulencePenalty) * 0.15f);
 
-        float small = DeterministicNoise.Sample3D(
-            warped.x * 0.01f,
-            warped.y * 0.01f,
-            warped.z * 0.01f,
-            seedManager.SeedValue + 99
-        );
-
-        float density =
-            (large * 0.6f) +
-            (medium * 0.3f) +
-            (small * 0.1f);
-
-        // sharper cluster definition
-        density = Mathf.Pow(density, 4f);
-
-        return Mathf.Clamp01(density * 1.5f * constantsManager.constants.gravity);
+        return new UniverseSample
+        {
+            position = position,
+            time = simulationTime,
+            density = density,
+            radiation = radiation,
+            entropy = entropy,
+            gravityPotential = gravityPotential,
+            lifeProbability = lifeProbability,
+            planetArchetype = ClassifyPlanet(constants, density, radiation, entropy, lifeProbability)
+        };
     }
 
-    public float GetRadiation(Vector3 position)
+    public PlanetArchetype ClassifyPlanet(UniverseConstants constants, float density, float radiation, float entropy, float lifeProbability)
     {
-        float noise = DeterministicNoise.Sample3D(
-            position.x * 0.002f,
-            position.y * 0.002f,
-            position.z * 0.002f,
-            seedManager.SeedValue + 42
-        );
+        if (constants.gravity > 6f && density > 0.7f)
+        {
+            return PlanetArchetype.Collapsed;
+        }
 
-        return noise * constantsManager.constants.electromagnetism;
-    }
+        if (constants.darkEnergy > 3.5f && density < 0.3f)
+        {
+            return PlanetArchetype.ThinExiled;
+        }
 
-    public float GetEntropy(Vector3 position)
-    {
-        float noise = DeterministicNoise.Sample3D(
-            position.x * 0.0005f,
-            position.y * 0.0005f,
-            position.z * 0.0005f,
-            seedManager.SeedValue + 99
-        );
+        if (entropy > 0.72f)
+        {
+            return PlanetArchetype.Volatile;
+        }
 
-        return noise * constantsManager.constants.entropy;
-    }
+        if (lifeProbability > 0.58f && radiation > 0.25f && radiation < 0.65f)
+        {
+            return PlanetArchetype.Habitable;
+        }
 
-    public float GetLifeProbability(Vector3 position)
-    {
-        float density = GetDensity(position);
-        float radiation = GetRadiation(position);
-        float entropy = GetEntropy(position);
-
-        float balance =
-            Mathf.Clamp01(1f - Mathf.Abs(radiation - 0.5f)) *
-            Mathf.Clamp01(1f - Mathf.Abs(entropy - 0.5f));
-
-        return density * balance;
+        return PlanetArchetype.Sterile;
     }
 }

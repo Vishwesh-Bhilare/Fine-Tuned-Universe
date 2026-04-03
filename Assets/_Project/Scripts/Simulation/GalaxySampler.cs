@@ -4,16 +4,14 @@ public class GalaxySampler : MonoBehaviour
 {
     private UniverseFieldSampler field;
 
-    void Awake()
+    private void Awake()
     {
         field = GetComponent<UniverseFieldSampler>();
     }
 
     public bool IsGalaxyNode(Vector3 position)
     {
-        float density = field.GetDensity(position);
-
-        // Higher threshold = only dense regions survive
-        return density > 0.85f;
+        UniverseSample sample = field.Sample(position, SimulationManager.Instance.SimulationTime);
+        return sample.density > 0.75f;
     }
 }
