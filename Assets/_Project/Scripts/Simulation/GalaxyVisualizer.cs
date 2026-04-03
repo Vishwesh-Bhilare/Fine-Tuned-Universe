@@ -1,78 +1,70 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GalaxyVisualizer : MonoBehaviour
 {
+    [SerializeField] private int halfExtent = 48;
+    [SerializeField] private int spacing = 6;
+
     private SeedManager seed;
     private UniverseFieldSampler field;
+    private readonly List<Transform> stars = new List<Transform>(4096);
 
-    void Start()
+    private void Start()
     {
         seed = GetComponent<SeedManager>();
         field = GetComponent<UniverseFieldSampler>();
-
         GenerateInitial();
     }
 
-    void Update()
+    private void Update()
     {
-        UpdateStars();
-    }
+        float simTime = SimulationManager.Instance != null ? SimulationManager.Instance.SimulationTime : 0f;
 
-    void GenerateInitial()
-    {
-        for (int x = -60; x <= 60; x += 4)
+        for (int i = 0; i < stars.Count; i++)
         {
-            for (int y = -20; y <= 20; y += 4)
-            {
-                for (int z = -60; z <= 60; z += 4)
-                {
-                    Vector3 basePos = new Vector3(x, y, z);
+            Transform star = stars[i];
+            UniverseSample sample = field.Sample(star.position, simTime);
 
-                    float jitterX = DeterministicNoise.Sample(x, z, seed.SeedValue) - 0.5f;
-                    float jitterY = DeterministicNoise.Sample(y, x, seed.SeedValue + 33) - 0.5f;
-                    float jitterZ = DeterministicNoise.Sample(z, y, seed.SeedValue + 77) - 0.5f;
+            float visibility = Mathf.SmoothStep(0.55f, 0.9f, sample.density);
+            float twinkle = 0.75f + 0.25f * Mathf.Sin(simTime * 0.1f + i * 0.13f);
 
-                    Vector3 pos = basePos + new Vector3(
-                        jitterX * 2f,
-                        jitterY * 2f,
-                        jitterZ * 2f
-                    );
+            float scale = 0.08f + sample.density * 0.25f;
+            star.localScale = Vector3.one * scale;
 
-                    GameObject star = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    star.transform.parent = transform;
-                    star.transform.position = pos;
-
-                    star.name = "Star";
-                }
-            }
+            Renderer renderer = star.GetComponent<Renderer>();
+            Color color = Color.Lerp(new Color(0.05f, 0.08f, 0.2f), Color.white, visibility * twinkle);
+            renderer.material.color = color;
+            renderer.enabled = visibility > 0.05f;
         }
     }
 
-    void UpdateStars()
+    private void GenerateInitial()
     {
-        foreach (Transform star in transform)
+        int deterministic = seed.SeedValue;
+
+        for (int x = -halfExtent; x <= halfExtent; x += spacing)
         {
-            Vector3 pos = star.position;
+            for (int y = -halfExtent / 3; y <= halfExtent / 3; y += spacing)
+            {
+                for (int z = -halfExtent; z <= halfExtent; z += spacing)
+                {
+                    int cellHash = deterministic + (x * 73856093) ^ (y * 19349663) ^ (z * 83492791);
+                    float jitterX = (DeterministicNoise.Hash01(cellHash, 1, 17, 5) * 2f - 1f) * (spacing * 0.4f);
+                    float jitterY = (DeterministicNoise.Hash01(cellHash, 2, 19, 7) * 2f - 1f) * (spacing * 0.4f);
+                    float jitterZ = (DeterministicNoise.Hash01(cellHash, 3, 23, 11) * 2f - 1f) * (spacing * 0.4f);
 
-            float density = field.GetDensity(pos);
+                    Vector3 pos = new Vector3(x + jitterX, y + jitterY, z + jitterZ);
 
-            // smooth density mapping
-            float visibility = Mathf.SmoothStep(0.65f, 0.9f, density);
+                    GameObject star = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    star.name = "Star";
+                    star.transform.SetParent(transform, false);
+                    star.transform.localPosition = pos;
+                    Destroy(star.GetComponent<Collider>());
 
-            // FIX: constant scale (no breathing blobs)
-            float baseScale = 0.2f + Mathf.Abs(Mathf.Sin(pos.x * 0.01f + pos.z * 0.01f)) * 0.1f;
-            star.localScale = Vector3.one * baseScale;
-
-            var renderer = star.GetComponent<Renderer>();
-
-            // depth-based fade
-            float depthFactor = Mathf.InverseLerp(-20f, 20f, pos.y);
-
-            // stronger contrast
-            float contrast = Mathf.Pow(visibility, 3f);
-
-            renderer.material.color =
-                Color.Lerp(Color.black, Color.white, contrast * depthFactor);
+                    stars.Add(star.transform);
+                }
+            }
         }
     }
 }
