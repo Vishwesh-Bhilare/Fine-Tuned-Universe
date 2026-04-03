@@ -10,6 +10,16 @@ public class ProbeCamera : MonoBehaviour
 
     private float yaw;
     private float pitch = 20f;
+    public Transform Target => target;
+
+    public void SetTarget(Transform nextTarget)
+    {
+        target = nextTarget;
+        if (target != null)
+        {
+            yaw = target.eulerAngles.y;
+        }
+    }
 
     private void LateUpdate()
     {

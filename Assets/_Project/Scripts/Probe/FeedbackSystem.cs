@@ -33,4 +33,14 @@ public class FeedbackSystem : MonoBehaviour
         audioSource.pitch = Mathf.Lerp(0.8f, 1.35f, 1f - sample.entropy);
         audioSource.volume = Mathf.Lerp(0.2f, 0.65f, sample.gravityPotential);
     }
+
+    public void SetProbe(Transform probeTransform)
+    {
+        probe = probeTransform;
+    }
+
+    public void SetProbeLight(Light lightSource)
+    {
+        probeLight = lightSource;
+    }
 }

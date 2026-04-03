@@ -15,6 +15,16 @@ public class ScanSystem : MonoBehaviour
             return;
         }
 
+        ScanForward();
+    }
+
+    public bool ScanForward()
+    {
+        if (probe == null || SimulationManager.Instance == null)
+        {
+            return false;
+        }
+
         Vector3 samplePos = probe.position + probe.forward * scanDistance;
         UniverseSample sample = SimulationManager.Instance.Sample(samplePos);
 
@@ -26,5 +36,11 @@ public class ScanSystem : MonoBehaviour
         };
 
         OnScanCompleted?.Invoke(result);
+        return true;
+    }
+
+    public void SetProbe(Transform probeTransform)
+    {
+        probe = probeTransform;
     }
 }

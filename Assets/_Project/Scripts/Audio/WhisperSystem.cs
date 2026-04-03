@@ -6,6 +6,7 @@ public class WhisperSystem : MonoBehaviour
     [SerializeField] private float whisperInterval = 12f;
 
     private float timer;
+    public string LastLine { get; private set; } = "I am still becoming.";
 
     private static readonly string[] stableLines =
     {
@@ -28,6 +29,11 @@ public class WhisperSystem : MonoBehaviour
         "Order is temporary, but you still listen."
     };
 
+    public void SetListener(Transform target)
+    {
+        listenerTransform = target;
+    }
+
     private void Update()
     {
         if (SimulationManager.Instance == null || listenerTransform == null)
@@ -44,8 +50,8 @@ public class WhisperSystem : MonoBehaviour
         timer = 0f;
         UniverseSample sample = SimulationManager.Instance.Sample(listenerTransform.position);
 
-        string line = ResolveLine(sample);
-        Debug.Log($"[Whisper] {line}");
+        LastLine = ResolveLine(sample);
+        Debug.Log($"[Whisper] {LastLine}");
     }
 
     private string ResolveLine(UniverseSample sample)
