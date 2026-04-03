@@ -332,10 +332,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConstantsManager
   constants:
-    gravity: 6.29
+    gravity: 10
     strongForce: 10
-    electromagnetism: 4.47
-    entropy: 2.05
+    electromagnetism: 10
+    entropy: 5
     darkEnergy: 5
 --- !u!114 &558911691
 MonoBehaviour:

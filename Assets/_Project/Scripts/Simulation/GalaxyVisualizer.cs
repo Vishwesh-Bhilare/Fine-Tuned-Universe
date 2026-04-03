@@ -20,22 +20,30 @@ public class GalaxyVisualizer : MonoBehaviour
 
     void GenerateInitial()
     {
-        for (int x = -100; x <= 100; x += 2)
+        for (int x = -60; x <= 60; x += 4)
         {
-            for (int z = -100; z <= 100; z += 2)
+            for (int y = -20; y <= 20; y += 4)
             {
-                Vector3 basePos = new Vector3(x, 0, z);
+                for (int z = -60; z <= 60; z += 4)
+                {
+                    Vector3 basePos = new Vector3(x, y, z);
 
-                float jitterX = DeterministicNoise.Sample(x, z, seed.SeedValue) - 0.5f;
-                float jitterZ = DeterministicNoise.Sample(z, x, seed.SeedValue + 77) - 0.5f;
+                    float jitterX = DeterministicNoise.Sample(x, z, seed.SeedValue) - 0.5f;
+                    float jitterY = DeterministicNoise.Sample(y, x, seed.SeedValue + 33) - 0.5f;
+                    float jitterZ = DeterministicNoise.Sample(z, y, seed.SeedValue + 77) - 0.5f;
 
-                Vector3 pos = basePos + new Vector3(jitterX * 2f, 0, jitterZ * 2f);
+                    Vector3 pos = basePos + new Vector3(
+                        jitterX * 2f,
+                        jitterY * 2f,
+                        jitterZ * 2f
+                    );
 
-                GameObject star = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                star.transform.parent = transform;
-                star.transform.position = pos;
+                    GameObject star = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    star.transform.parent = transform;
+                    star.transform.position = pos;
 
-                star.name = "Star";
+                    star.name = "Star";
+                }
             }
         }
     }
@@ -48,18 +56,23 @@ public class GalaxyVisualizer : MonoBehaviour
 
             float density = field.GetDensity(pos);
 
-            // smoother transition band
+            // smooth density mapping
             float visibility = Mathf.SmoothStep(0.65f, 0.9f, density);
 
-            // stronger visual response
-            float pulse = Mathf.Sin(Time.time * 2f + pos.x * 0.1f + pos.z * 0.1f) * 0.1f;
-            float scale = 0.1f + visibility * 3.5f + pulse;
+            // FIX: constant scale (no breathing blobs)
+            float baseScale = 0.2f + Mathf.Abs(Mathf.Sin(pos.x * 0.01f + pos.z * 0.01f)) * 0.1f;
+            star.localScale = Vector3.one * baseScale;
 
             var renderer = star.GetComponent<Renderer>();
 
-            // higher contrast
+            // depth-based fade
+            float depthFactor = Mathf.InverseLerp(-20f, 20f, pos.y);
+
+            // stronger contrast
             float contrast = Mathf.Pow(visibility, 3f);
-            renderer.material.color = Color.Lerp(Color.black, Color.white, contrast);
+
+            renderer.material.color =
+                Color.Lerp(Color.black, Color.white, contrast * depthFactor);
         }
     }
 }
