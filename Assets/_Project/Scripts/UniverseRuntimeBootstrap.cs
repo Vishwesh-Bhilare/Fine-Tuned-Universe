@@ -9,22 +9,38 @@ public static class UniverseRuntimeBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureRuntime()
     {
-        if (Object.FindAnyObjectByType<SimulationManager>() != null) return;
+        var existingSim = Object.FindAnyObjectByType<SimulationManager>();
+        GameObject root;
 
-        var root = new GameObject("UniverseRuntime_[AUTO]");
-        Object.DontDestroyOnLoad(root);
+        if (existingSim == null)
+        {
+            root = new GameObject("UniverseRuntime_[AUTO]");
+            Object.DontDestroyOnLoad(root);
+            Debug.Log("[Bootstrap] Auto-created UniverseRuntime root.");
+        }
+        else
+        {
+            root = existingSim.gameObject;
+            Object.DontDestroyOnLoad(root);
+            Debug.Log("[Bootstrap] Using existing SimulationManager root.");
+        }
 
-        root.AddComponent<SeedManager>();
-        root.AddComponent<ConstantsManager>();
-        root.AddComponent<UniverseFieldSampler>();
-        root.AddComponent<GalaxySampler>();
-        root.AddComponent<SimulationManager>();
-        root.AddComponent<GalaxyVisualizer>();
-        root.AddComponent<CodexManager>();
-        root.AddComponent<PersistenceManager>();
-        root.AddComponent<WhisperSystem>();
-        root.AddComponent<UniverseGameController>();
+        EnsureComponent<SeedManager>(root);
+        EnsureComponent<ConstantsManager>(root);
+        EnsureComponent<UniverseFieldSampler>(root);
+        EnsureComponent<GalaxySampler>(root);
+        EnsureComponent<SimulationManager>(root);
+        EnsureComponent<GalaxyVisualizer>(root);
+        EnsureComponent<CodexManager>(root);
+        EnsureComponent<PersistenceManager>(root);
+        EnsureComponent<WhisperSystem>(root);
+        EnsureComponent<UniverseGameController>(root);
+    }
 
-        Debug.Log("[Bootstrap] Auto-created UniverseRuntime root.");
+    private static T EnsureComponent<T>(GameObject root) where T : Component
+    {
+        var c = root.GetComponent<T>();
+        if (c != null) return c;
+        return root.AddComponent<T>();
     }
 }

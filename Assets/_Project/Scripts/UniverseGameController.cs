@@ -41,6 +41,7 @@ public class UniverseGameController : MonoBehaviour
         EnsureProbe();
         EnsureHUDs();
         WireProbeReferences();
+        WireVisualizerReferences();
 
         if (scanSystem != null)
             scanSystem.OnScanCompleted += HandleScanCompleted;
@@ -222,6 +223,13 @@ public class UniverseGameController : MonoBehaviour
             // Use reflection-free field wiring via serialized property approach —
             // instead set them via public setters (add below if needed).
         }
+    }
+
+    private void WireVisualizerReferences()
+    {
+        var visualizer = GetComponent<GalaxyVisualizer>();
+        if (visualizer == null) return;
+        visualizer.SetObservatoryCamera(observatoryCamera);
     }
 
     private T GetOrAdd<T>() where T : Component
