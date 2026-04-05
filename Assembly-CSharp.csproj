@@ -48,16 +48,32 @@
     <Analyzer Include="/home/vishy/Unity/Hub/Editor/6000.4.1f1/Editor/Data/Tools/BuildPipeline/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/_Project/Scripts/Utilities/DeterministicNoise.cs" />
-    <Compile Include="Assets/_Project/Scripts/Simulation/UniverseConstants.cs" />
-    <Compile Include="Assets/_Project/Scripts/Simulation/GalaxySampler.cs" />
-    <Compile Include="Assets/_Project/Scripts/Core/SeedManager.cs" />
-    <Compile Include="Assets/_Project/Scripts/Core/SimulationManager.cs" />
-    <Compile Include="Assets/_Project/Scripts/Simulation/UniverseFieldSampler.cs" />
-    <Compile Include="Assets/_Project/Scripts/Simulation/FieldDebugVisualizer.cs" />
+    <Compile Include="Assets/_Project/Scripts/GalaxyVisualizer.cs" />
+    <Compile Include="Assets/_Project/Scripts/WhisperSystem.cs" />
+    <Compile Include="Assets/_Project/Scripts/LocalInfluenceSystem.cs" />
+    <Compile Include="Assets/_Project/Scripts/DeterministicNoise.cs" />
+    <Compile Include="Assets/_Project/Scripts/ProbeCamera.cs" />
+    <Compile Include="Assets/_Project/Scripts/GameInput.cs" />
+    <Compile Include="Assets/_Project/Scripts/GalaxySampler.cs" />
+    <Compile Include="Assets/_Project/Scripts/FeedbackSystem.cs" />
+    <Compile Include="Assets/_Project/Scripts/ConstantsManager.cs" />
+    <Compile Include="Assets/_Project/Scripts/SignalSystem.cs" />
+    <Compile Include="Assets/_Project/Scripts/ObservatoryHUD.cs" />
+    <Compile Include="Assets/_Project/Scripts/UniverseRuntimeBootstrap.cs" />
+    <Compile Include="Assets/_Project/Scripts/ScanSystem.cs" />
+    <Compile Include="Assets/_Project/Scripts/UniverseFieldSampler.cs" />
+    <Compile Include="Assets/_Project/Scripts/CodexManager.cs" />
     <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
-    <Compile Include="Assets/_Project/Scripts/Simulation/GalaxyVisualizer.cs" />
-    <Compile Include="Assets/_Project/Scripts/Simulation/ConstantsManager.cs" />
+    <Compile Include="Assets/_Project/Scripts/PersistenceManager.cs" />
+    <Compile Include="Assets/_Project/Scripts/UniverseGameController.cs" />
+    <Compile Include="Assets/_Project/Scripts/SimulationManager.cs" />
+    <Compile Include="Assets/_Project/Scripts/ObservatoryController.cs" />
+    <Compile Include="Assets/_Project/Scripts/UniverseSample.cs" />
+    <Compile Include="Assets/_Project/Scripts/UniverseConstants.cs" />
+    <Compile Include="Assets/_Project/Scripts/ProbeController.cs" />
+    <Compile Include="Assets/_Project/Scripts/ProbeHUD.cs" />
+    <Compile Include="Assets/_Project/Scripts/FieldDebugVisualizer.cs" />
+    <Compile Include="Assets/_Project/Scripts/SeedManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
